@@ -29,6 +29,7 @@ from skyfield.nutationlib import iau2000b
 
 netPortRotor = None
 netPortFreq = None
+lastElevation=-999.0
 
 # -------------------  Global Functions ----------------------------------------
 def socketConnect(server, port):
@@ -130,7 +131,9 @@ if __name__ == '__main__':
     argparser.add_argument('--listbodies', help="List options for the --body parameter", default=False, action='store_true')
 
     argparser.add_argument('--freq', help="If provided, a doppler shift will be calculated", default=0.0, required=False)
-    argparser.add_argument('--radio', help="If provided, gqrx/gpredict-compatible frequency control commands will be sent to the specified host:port (Note: This disables any value in the --date parameter and the --freq parameter is required and causes the program to continue to loop)", default="", required=False)
+    argparser.add_argument('--radio', help="If provided, gqrx/gpredict-compatible frequency control commands will be sent to the specified host:port (Note: This disables any value in the --date parameter and the --freq parameter is required and causes the program to continue to loop, sending updates)", default="", required=False)
+    argparser.add_argument('--send-aos-los', help="Send AOS/LOS messages to radio above the specified elevation (Default is not to send)", default=False, action='store_true', required=False)
+    argparser.add_argument('--aos-elevation', help="Set the AOS/LOS elevation boundary in degrees (Default is 10 degrees)", default=10.0, required=False)
     argparser.add_argument('--sdrsharp', help="If provided, frequency control commands will be sent the NetRemote plugin for SDRSharp on the specified host:port (Note: This disables any value in the --date parameter and the --freq parameter is required and causes the program to continue to loop)", default="", required=False)
     argparser.add_argument('--delay', help="Time in seconds between radio and rotor updates (default=30 seconds)", default=30, required=False)
     argparser.add_argument('--rotor', help="HamLib compatible rotor control (matches gpredict rotor/rotctl).  Can be <ip>:<port> or device like /dev/ttyUSB0", default="", required=False)
@@ -175,7 +178,8 @@ if __name__ == '__main__':
     if (args.lat==-999.0 or args.long==-999.0):
         print("ERROR: Latitude and Longitude are required.")
         exit(1)
-        
+
+    aos_elevation = float(args.aos_elevation)
     planetaryBody=args.body
     # Get object descriptors
     earth = planets['earth']
@@ -324,6 +328,27 @@ if __name__ == '__main__':
             # moon - moonFuture will produce the correct sign, - for towards, + for away
             relativeVelocity=(futureDistance - distance_meters) / float(deltaT)
 
+            # Check if we have to notify the radio about AOS (Acquisition of Signal) / LOS (Loss of Signal)
+            if (useRadio and args.send_aos_los):
+                if elevation >= aos_elevation:
+                    # See if we transitioned up:
+                    if lastElevation < aos_elevation:
+                        # We transitioned:
+                        message="AOS\n"
+                        netPortFreq.send(bytes(message.encode()))
+                        data = netPortFreq.recv(BUFFER_SIZE)
+                        result=data.decode('utf8')
+                else:
+                    # See if we transitioned down:
+                    if lastElevation >= aos_elevation:
+                        # We transitioned:
+                        message="LOS\n"
+                        netPortFreq.send(bytes(message.encode()))
+                        data = netPortFreq.recv(BUFFER_SIZE)
+                        result=data.decode('utf8')
+                    
+                lastElevation = elevation
+                
             if len(args.rotor) > 0:
                 # check our limits if we have any
                 executeMove = True
