@@ -30,6 +30,11 @@ optional arguments:
                         host:port (Note: This disables any value in the --date
                         parameter and the --freq parameter is required and
                         causes the program to continue to loop)
+  --send-aos-los        Send AOS/LOS messages to radio above the specified
+                        elevation (Default is not to send)
+  --aos-elevation AOS_ELEVATION
+                        Set the AOS/LOS elevation boundary in degrees (Default
+                        is 10 degrees)
   --sdrsharp SDRSHARP   If provided, frequency control commands will be sent
                         the NetRemote plugin for SDRSharp on the specified
                         host:port (Note: This disables any value in the --date
@@ -66,9 +71,9 @@ optional arguments:
 ```
 
 ## Examples
-Running with a radio for the moon:
+Running with a radio for the moon and notify the receiver with acquisition of signal (AOS) / loss of signal (LOS) above/below 12 degrees:
 
-``./skytrack.py --body=moon --lat=<mylat> --long=<mylong> --freq=144000000 --radio=127.0.0.1:7356``
+``./skytrack.py --body=moon --lat=<mylat> --long=<mylong> --freq=144000000 --radio=127.0.0.1:7356 --send-aos-los --aos-elevation=12``
 
 
 Running with a radio and rotor for Mars:
