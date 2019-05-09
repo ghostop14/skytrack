@@ -96,6 +96,9 @@ pip3 install skyfield tzlocal python-dateutil
 ### Integrating with GQRX
 Pretty straightforward, just turn on the TCP listener in the UI.  NOTE: It only listens on the local loopback by default so if you're using it across a network you'll need to change the listening IP to something more network-friendly (like 0.0.0.0 for all IP's).
 
+### Integrating with GNURadio
+The gr-gpredict-doppler fork in my repos here https://github.com/ghostop14/gr-gpredict-doppler.git have new and updated blocks that support receiving both frequencies and azimuth/elevation rotor control values from skytrack.  Just drop the appropriate doppler or rotor block in your GNURadio flowgraph, specify the listening port, then use those same parameters (for instance localhost:7356) for the appropriate skytrack parameter (radio or rotor).
+
 ### Integrating with SDRSharp:
 This uses the SDRSharp plugin located here:
 https://github.com/EarToEarOak/SDRSharp-Net-Remote
