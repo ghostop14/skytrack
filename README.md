@@ -68,12 +68,12 @@ optional arguments:
 ## Examples
 Running with a radio for the moon:
 
-``./skytrack.py --body=moon --lat=&lt;mylat&gt; --long=&lt;mylong&gt; --freq=144000000 --radio=127.0.0.1:7356``
+``./skytrack.py --body=moon --lat=<mylat>; --long=<mylong> --freq=144000000 --radio=127.0.0.1:7356``
 
 
 Running with a radio and rotor for Mars:
 
-``./skytrack.py --body=mars --lat=&lt;mylat&gt; --long=&lt;mylong&gt; --freq=144000000 --radio=127.0.0.1:7356 --rotor=localhost:4533``
+``./skytrack.py --body=mars --lat=<mylat> --long=<mylong> --freq=144000000 --radio=127.0.0.1:7356 --rotor=localhost:4533``
 
 
 ## Installation
