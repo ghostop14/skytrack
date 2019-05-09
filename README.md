@@ -6,20 +6,8 @@ SkyTrack is a Python-based comand-line tool that tracks solar system body positi
 Observer coordinates define your place on Earth from which Azimuth and Elevation are determined.  Moreover, the tool can automatically control a radio receiver (gqrx-compatible or SDRSharp) to set a given receiver frequency with doppler shift due to the body's motion relative to Earth.  It can also control rotors (based on rotctl/hamlib protocol) setting appropriate azimuth and elevation.  SkyTrack can be run natively on both Linux and Windows (With Python and skyfield installed - see windows setup below).  However since receiver and rotor control is TCP-based, SkyTrack can be run on different system types.  For instance, the gr-gpredict-doppler modules can be run in GNURadio on Linux, and the skytrack script run on WIndows if need be.
 
 The following help shows its usage:
-``
-usage: skytrack.py [-h] [--body BODY] [--lat LAT] [--long LONG] [--listbodies]
-
-                   [--freq FREQ] [--radio RADIO] [--sdrsharp SDRSHARP]
-
-                   [--delay DELAY] [--rotor ROTOR] [--rotortype ROTORTYPE]
-
-                   [--rotorbaud ROTORBAUD] [--rotorleftlimit ROTORLEFTLIMIT]
-
-                   [--rotorrightlimit ROTORRIGHTLIMIT]
-
-                   [--rotorelevationlimit ROTORELEVATIONLIMIT]
-
-                   [--utcdate UTCDATE]
+```
+usage: skytrack.py [-h] [--body BODY] [--lat LAT] [--long LONG] [--listbodies] [--freq FREQ] [--radio RADIO] [--sdrsharp SDRSHARP] [--delay DELAY] [--rotor ROTOR] [--rotortype ROTORTYPE] [--rotorbaud ROTORBAUD] [--rotorleftlimit ROTORLEFTLIMIT] [--rotorrightlimit ROTORRIGHTLIMIT] [--rotorelevationlimit ROTORELEVATIONLIMIT] [--utcdate UTCDATE]
 
 
 Solar System Planet/Moon Tracker
@@ -27,96 +15,96 @@ Solar System Planet/Moon Tracker
 
 optional arguments:
 
-  -h, --help            show this help message and exit
+-h, --help            show this help message and exit
 
-  --body BODY           [Required] Planet/Moon from the skyfield library to
+--body BODY           [Required] Planet/Moon from the skyfield library to
 
-                        track. Use --listbodies to see options.
+                track. Use --listbodies to see options.
 
-  --lat LAT             [Required] Observer Latitude
+--lat LAT             [Required] Observer Latitude
 
-  --long LONG           [Required] Observer Longitude
+--long LONG           [Required] Observer Longitude
 
-  --listbodies          List options for the --body parameter
+--listbodies          List options for the --body parameter
 
-  --freq FREQ           If provided, a doppler shift will be calculated
+--freq FREQ           If provided, a doppler shift will be calculated
 
-  --radio RADIO         If provided, gqrx/gpredict-compatible frequency
+--radio RADIO         If provided, gqrx/gpredict-compatible frequency
 
-                        control commands will be sent to the specified
+                control commands will be sent to the specified
 
-                        host:port (Note: This disables any value in the --date
+                host:port (Note: This disables any value in the --date
 
-                        parameter and the --freq parameter is required and
+                parameter and the --freq parameter is required and
 
-                        causes the program to continue to loop)
+                causes the program to continue to loop)
 
-  --sdrsharp SDRSHARP   If provided, frequency control commands will be sent
+--sdrsharp SDRSHARP   If provided, frequency control commands will be sent
 
-                        the NetRemote plugin for SDRSharp on the specified
+                the NetRemote plugin for SDRSharp on the specified
 
-                        host:port (Note: This disables any value in the --date
+                host:port (Note: This disables any value in the --date
 
-                        parameter and the --freq parameter is required and
+                parameter and the --freq parameter is required and
 
-                        causes the program to continue to loop)
+                causes the program to continue to loop)
 
-  --delay DELAY         Time in seconds between radio and rotor updates
+--delay DELAY         Time in seconds between radio and rotor updates
 
-                        (default=30 seconds)
+                (default=30 seconds)
 
-  --rotor ROTOR         HamLib compatible rotor control (matches gpredict
+--rotor ROTOR         HamLib compatible rotor control (matches gpredict
 
-                        rotor/rotctl). Can be <ip>:<port> or device like
+                rotor/rotctl). Can be <ip>:<port> or device like
 
-                        /dev/ttyUSB0
+                /dev/ttyUSB0
 
-  --rotortype ROTORTYPE
+--rotortype ROTORTYPE
 
-                        rotctl rotor type (use rotctl -l to show numbers).
+                rotctl rotor type (use rotctl -l to show numbers).
 
-                        Default is 2 (hamlib/net), Celestron is 1401, SPID is
+                Default is 2 (hamlib/net), Celestron is 1401, SPID is
 
-                        901 or 902 depending on mode.
+                901 or 902 depending on mode.
 
-  --rotorbaud ROTORBAUD
+--rotorbaud ROTORBAUD
 
-                        If needed, can provide a rotor baud. Default is 9600
+                If needed, can provide a rotor baud. Default is 9600
 
-  --rotorleftlimit ROTORLEFTLIMIT
+--rotorleftlimit ROTORLEFTLIMIT
 
-                        If needed, can provide a rotor 'left' limit in
+                If needed, can provide a rotor 'left' limit in
 
-                        degrees. For instance if obstructions block rotation
+                degrees. For instance if obstructions block rotation
 
-                        or view. Default is no restriction. Note: if either
+                or view. Default is no restriction. Note: if either
 
-                        left/right limit is noted, both are required.
+                left/right limit is noted, both are required.
 
-  --rotorrightlimit ROTORRIGHTLIMIT
+--rotorrightlimit ROTORRIGHTLIMIT
 
-                        If needed, can provide a rotor 'right' limit in
+                If needed, can provide a rotor 'right' limit in
 
-                        degrees. For instance if obstructions block rotation
+                degrees. For instance if obstructions block rotation
 
-                        or view. Default is no restriction. Note: if either
+                or view. Default is no restriction. Note: if either
 
-                        left/right limit is noted, both are required.
+                left/right limit is noted, both are required.
 
-  --rotorelevationlimit ROTORELEVATIONLIMIT
+--rotorelevationlimit ROTORELEVATIONLIMIT
 
-                        If needed, can provide a rotor 'elevation' limit in
+                If needed, can provide a rotor 'elevation' limit in
 
-                        degrees. For instance if obstructions block rotation
+                degrees. For instance if obstructions block rotation
 
-                        or view. Default is 90 degrees (straight up).
+                or view. Default is 90 degrees (straight up).
 
-  --utcdate UTCDATE     [Alternate date] If provided, the UTC date and time
+--utcdate UTCDATE     [Alternate date] If provided, the UTC date and time
 
-                        will be used for the rise/set calculation rather than
+                will be used for the rise/set calculation rather than
 
-                        the current date/time. Format: year/month/day hh:mm:ss
-``
+                the current date/time. Format: year/month/day hh:mm:ss
+```
 
 ## Examples
 Running with a radio for the moon:
