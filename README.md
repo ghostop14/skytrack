@@ -6,7 +6,7 @@ SkyTrack is a Python-based comand-line tool that tracks solar system body positi
 Observer coordinates define your place on Earth from which Azimuth and Elevation are determined.  Moreover, the tool can automatically control a radio receiver (gqrx-compatible or SDRSharp) to set a given receiver frequency with doppler shift due to the body's motion relative to Earth.  It can also control rotors (based on rotctl/hamlib protocol) setting appropriate azimuth and elevation.  SkyTrack can be run natively on both Linux and Windows (With Python and skyfield installed - see windows setup below).  However since receiver and rotor control is TCP-based, SkyTrack can be run on different system types.  For instance, the gr-gpredict-doppler modules can be run in GNURadio on Linux, and the skytrack script run on WIndows if need be.
 
 The following help shows its usage:
-
+``
 usage: skytrack.py [-h] [--body BODY] [--lat LAT] [--long LONG] [--listbodies]
 
                    [--freq FREQ] [--radio RADIO] [--sdrsharp SDRSHARP]
@@ -116,17 +116,17 @@ optional arguments:
                         will be used for the rise/set calculation rather than
 
                         the current date/time. Format: year/month/day hh:mm:ss
-
+``
 
 ## Examples
 Running with a radio for the moon:
 
-./skytrack.py --body=moon --lat=&gt;mylat&gt; --long=&gt;mylong&gt; --freq=144000000 --radio=127.0.0.1:7356
+``./skytrack.py --body=moon --lat=&lt;mylat&gt; --long=&lt;mylong&gt; --freq=144000000 --radio=127.0.0.1:7356``
 
 
 Running with a radio and rotor for Mars:
 
-./skytrack.py --body=mars --lat=&gt;mylat&gt; --long=&gt;mylong&gt; --freq=144000000 --radio=127.0.0.1:7356 --rotor=localhost:4533
+``./skytrack.py --body=mars --lat=&lt;mylat&gt; --long=&lt;mylong&gt; --freq=144000000 --radio=127.0.0.1:7356 --rotor=localhost:4533``
 
 
 ## Installation
