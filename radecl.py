@@ -61,9 +61,10 @@ if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='RA/DEC to Az/El Converter with Rotor Control (via rotctld)')
     argparser.add_argument('--ra', help="Target Right Ascention (can just be degrees '9.81625' or can be '<#>h<#>m<#s>')", default="", required=True)
     argparser.add_argument('--dec', help="Target Declination (can just be degrees '10.88806' or can be '<#>d<#>m<#s>'", default="", required=True)
-    argparser.add_argument('--lat', help="Observer Latitude", default="", required=True)
-    argparser.add_argument('--long', help="Observer Longitude", default="", required=True)
-    argparser.add_argument('--altitude', help="[Required] Observer Altitude (in meters)", default=-999.0, required=True)
+    argparser.add_argument('--lat', help="Observer Latitude (decimal notation. Example: 40.1234)", default="", required=True)
+    argparser.add_argument('--long', help="Observer Longitude (decimal notation)", default="", required=True)
+    argparser.add_argument('--altitude', help="Observer Altitude (in meters)", default=-999.0, required=True)
+    argparser.add_argument('--azcorrect', help="Degrees to adjust calculated azimuth.  For example, useful if accounting for magnetic vs. true north.", default=0, required=False)
     argparser.add_argument('--rotor', help="Rotctld-compatible network rotor controller.  Specify as <ip>:<port>", default="", required=False)
     argparser.add_argument('--delay', help="Time in seconds between updates (default is single shot)", default=0, required=False)
     argparser.add_argument('--rotorleftlimit', help="If needed, can provide a rotor 'left' limit in degrees. For instance if obstructions block rotation or view.  Default is no restriction.  Note: if either left/right limit is noted, both are required.", default=-1, required=False)
@@ -74,7 +75,8 @@ if __name__ == '__main__':
     # Parse Args
     args = argparser.parse_args()
     delay= int(args.delay)
-
+    azcorrect = float(args.azcorrect)
+    
     # Ground point of reference / where are we?
     earthLat = float(args.lat)*u.deg
     earthLong = float(args.long)*u.deg
@@ -165,12 +167,19 @@ if __name__ == '__main__':
             print("Calculating...", file=sys.stderr)
             altAz=raDeclTarget.transform_to(altAzCoord)
 
-            print('UTC Time: ' + str(observingTime))
-            print('Azimuth: ' + '%.4f' % altAz.az.degree + ' degrees')
-            print('Elevation: ' + '%.4f' % altAz.alt.degree + ' degrees')
-            
             azimuth = altAz.az.degree
             elevation = altAz.alt.degree
+            if (azcorrect != 0.0):
+                azimuth = azimuth + azcorrect
+                
+            print('UTC Time: ' + str(observingTime))
+            if (azcorrect == 0.0):
+                print('Azimuth: ' + '%.4f' % azimuth + ' degrees')
+            else:
+                print('Azimuth (Calculated): ' + '%.4f' % azimuth + ' degrees')
+                print('Azimuth (Corrected): ' + '%.4f' % azimuth + ' degrees')
+                
+            print('Elevation: ' + '%.4f' % elevation + ' degrees')
             
             if len(args.rotor) > 0:
                 # check our limits if we have any
