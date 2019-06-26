@@ -1,7 +1,12 @@
 # SkyTrack
 
 ## Overview
-SkyTrack is a Python-based comand-line tool that tracks solar system body positions (Azimuth / Elevation) in relation to the specified latitude and longitude.  This information can be used to do basic target-rise/set calculations, or taken to feed a radio and rotor system for radio reception or observation.  Think of it as tools such as gpredict or Orbitron taken from earth-based satellites out to solar system bodies such as the Moon, Mars, and Jupiter's moons.  This tool when combined with GQRX, SDRSharp, the GNURadio OOT gr-gpredict-doppler fork in my github repositories, and/or any Hamlib compatible rotor system can provide both frequency doppler shifted radio control and azimuth/elevation control to point observing systems at any solar system body in the Skyfield python library database (https://rhodesmill.org/skyfield/).
+SkyTrack is a set of Python-based comand-line tools that helps track solar system and other celestial body positions (Azimuth / Elevation) in relation to the specified latitude and longitude.  This information can be used to do basic target-rise/set calculations, or taken to feed a radio and rotor system for radio reception or observation.  Think of it as tools such as gpredict or Orbitron taken from earth-based satellites out to solar system and other celestial bodies such as the Moon, Mars, and Jupiter's moons.  
+
+Skytrack contains two command-line tools: one called skytrack.py and one called radecl.py.  skytrack.py is used to track solar system objects and radecl.py can be used given any Right Ascention and Declinination coordinates to calculate Az/El.
+
+### Skytrack
+Skytrack can be connected to GQRX, SDRSharp, the GNURadio OOT gr-gpredict-doppler fork in my github repositories, and/or any Hamlib rotctld-compatible rotor system.  It can provide both frequency doppler shifted radio control and azimuth/elevation control to point observing systems at any solar system body in the Skyfield python library database (https://rhodesmill.org/skyfield/).
 
 Observer coordinates define your place on Earth from which Azimuth and Elevation are determined.  Moreover, the tool can automatically control a radio receiver (gqrx-compatible or SDRSharp) to set a given receiver frequency with doppler shift due to the body's motion relative to Earth.  It can also control rotors (based on rotctl/hamlib protocol) setting appropriate azimuth and elevation.  SkyTrack can be run natively on both Linux and Windows (With Python and skyfield installed - see windows setup below).  However since receiver and rotor control is TCP-based, SkyTrack can be run on different system types.  For instance, the gr-gpredict-doppler modules can be run in GNURadio on Linux, and the skytrack script run on WIndows if need be.
 
@@ -70,7 +75,59 @@ optional arguments:
                         the current date/time. Format: year/month/day hh:mm:ss
 ```
 
+### radecl
+radecl.py is designed such that knowing any RA/DEC target and the local observing location (lat, long, and altitude), local azimuth and elevation parameters can be calculated using either current time or a specified UTC time.  radecl has the ability to talk to rotctld-compatible rotor systems to automatically point systems at the specified target.  It also suppports an azcorrect parameter if adjustments to output azimuth values need to be made, such as accounting for true versus magnetic north.  The following shows the supported parameters for radecl.py:
+
+The following help shows its usage:
+```
+usage: radecl.py [-h] --ra RA --dec DEC --lat LAT --long LONG --altitude
+                 ALTITUDE [--azcorrect AZCORRECT] [--rotor ROTOR]
+                 [--delay DELAY] [--rotorleftlimit ROTORLEFTLIMIT]
+                 [--rotorrightlimit ROTORRIGHTLIMIT]
+                 [--rotorelevationlimit ROTORELEVATIONLIMIT]
+                 [--utcdate UTCDATE]
+
+RA/DEC to Az/El Converter with Rotor Control (via rotctld)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --ra RA               Target Right Ascention (can just be degrees '9.81625'
+                        or can be '<#>h<#>m<#s>')
+  --dec DEC             Target Declination (can just be degrees '10.88806' or
+                        can be '<#>d<#>m<#s>'
+  --lat LAT             Observer Latitude (decimal notation. Example: 40.1234)
+  --long LONG           Observer Longitude (decimal notation)
+  --altitude ALTITUDE   Observer Altitude (in meters)
+  --azcorrect AZCORRECT
+                        Degrees to adjust calculated azimuth. For example,
+                        useful if accounting for magnetic vs. true north.
+  --rotor ROTOR         Rotctld-compatible network rotor controller. Specify
+                        as <ip>:<port>
+  --delay DELAY         Time in seconds between updates (default is single
+                        shot)
+  --rotorleftlimit ROTORLEFTLIMIT
+                        If needed, can provide a rotor 'left' limit in
+                        degrees. For instance if obstructions block rotation
+                        or view. Default is no restriction. Note: if either
+                        left/right limit is noted, both are required.
+  --rotorrightlimit ROTORRIGHTLIMIT
+                        If needed, can provide a rotor 'right' limit in
+                        degrees. For instance if obstructions block rotation
+                        or view. Default is no restriction. Note: if either
+                        left/right limit is noted, both are required.
+  --rotorelevationlimit ROTORELEVATIONLIMIT
+                        If needed, can provide a rotor 'elevation' limit in
+                        degrees. For instance if obstructions block rotation
+                        or view. Default is 90 degrees (straight up).
+  --utcdate UTCDATE     [Alternate date] If provided, the UTC date and time
+                        will be used for the calculation rather than the
+                        current date/time. Format: year/month/day hh:mm:ss
+```
+
+
 ## Examples
+
+### Skytrack
 Running with a radio for the moon and notify the receiver with acquisition of signal (AOS) / loss of signal (LOS) above/below 12 degrees:
 
 ``./skytrack.py --body=moon --lat=<mylat> --long=<mylong> --freq=144000000 --radio=127.0.0.1:7356 --send-aos-los --aos-elevation=12``
@@ -80,11 +137,19 @@ Running with a radio and rotor for Mars:
 
 ``./skytrack.py --body=mars --lat=<mylat> --long=<mylong> --freq=144000000 --radio=127.0.0.1:7356 --rotor=localhost:4533``
 
+### radecl
+Pointing at Cassiopeia A:
+
+``./radecl.py --lat=<mylat> --long=<mylong> --altitude=<my alt in meters> --ra=23h23m24s --dec=58d48.9m``
+
+Running with rotor control:
+
+``./radecl.py --lat=<mylat> --long=<mylong> --altitude=<my alt in meters> --ra=23h23m24s --dec=58d48.9m --delay=10 --rotor=127.0.0.1:4533``
 
 ## Installation
 
 ### Linux Prerequisites
-pip3 install skyfield tzlocal python-dateutil
+pip3 install skyfield astropy tzlocal python-dateutil
 
 For rotor control you will also need to either install hamlib from source (https://sourceforge.net/projects/hamlib/files/hamlib/3.3/) or use the repo version, which will undoubtedly be a bit older and have fewer rotor choices:
 sudo apt-get install hamlib-utils python-libhamlib2
