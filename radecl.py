@@ -169,15 +169,23 @@ if __name__ == '__main__':
 
             azimuth = altAz.az.degree
             elevation = altAz.alt.degree
+            
+            trueAz = azimuth
+            
             if (azcorrect != 0.0):
-                azimuth = azimuth + azcorrect
+                trueAz = trueAz + azcorrect
+                
+            if trueAz > 360.0:
+                trueAz = trueAz - 360.0
+            elif trueAz < 0.0:
+                trueAz = trueAz + 360.0
                 
             print('UTC Time: ' + str(observingTime))
             if (azcorrect == 0.0):
                 print('Azimuth: ' + '%.4f' % azimuth + ' degrees')
             else:
                 print('Azimuth (Calculated): ' + '%.4f' % azimuth + ' degrees')
-                print('Azimuth (Corrected): ' + '%.4f' % azimuth + ' degrees')
+                print('Azimuth (Corrected): ' + '%.4f' % trueAz + ' degrees')
                 
             print('Elevation: ' + '%.4f' % elevation + ' degrees')
             
@@ -188,11 +196,11 @@ if __name__ == '__main__':
                 if usingRotorLimits:
                     if rotorLimitsReversed:
                         # if we're less than the left limit but not within the right limit, don't move
-                        if azimuth < float(args.rotorleftlimit) and azimuth > float(args.rotorrightlimit):
+                        if trueAz < float(args.rotorleftlimit) and trueAz > float(args.rotorrightlimit):
                             executeMove = False
                     else:
                         # if we're not between our set limits, don't move
-                        if azimuth < float(args.rotorleftlimit) or azimuth > float(args.rotorrightlimit):
+                        if trueAz < float(args.rotorleftlimit) or trueAz > float(args.rotorrightlimit):
                             executeMove = False
                         
                     if args.rotorelevationlimit != -1:
@@ -200,7 +208,7 @@ if __name__ == '__main__':
                             executeMove = False
                             
                     if executeMove:
-                        retVal = RCmoveToPosition(args.rotor,  azimuth,  elevation)
+                        retVal = RCmoveToPosition(args.rotor,  trueAz,  elevation)
                     else:
                         print('[Info] Rotor would violate user-configured limits.  No move sent.')
                 else:
@@ -209,7 +217,7 @@ if __name__ == '__main__':
                             executeMove = False
                             
                     if executeMove:
-                        retVal = RCmoveToPosition(args.rotor, azimuth,  elevation)
+                        retVal = RCmoveToPosition(args.rotor, trueAz,  elevation)
                     else:
                         print('[Info] Rotor would violate user-configured limits.  No move sent.')
 
