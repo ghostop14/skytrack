@@ -139,6 +139,7 @@ if __name__ == '__main__':
     argparser.add_argument('--rotor', help="HamLib compatible rotor control (matches gpredict rotor/rotctl).  Can be <ip>:<port> or device like /dev/ttyUSB0", default="", required=False)
     argparser.add_argument('--rotortype', help="rotctl rotor type (use rotctl -l to show numbers).  Default is 2 (hamlib/net), Celestron is 1401, SPID is 901 or 902 depending on mode.", default=2, required=False)
     argparser.add_argument('--rotorbaud', help="If needed, can provide a rotor baud.  Default is 9600", default=9600, required=False)
+    argparser.add_argument('--azoffset', help="An offset in degrees can be provided for any Azimuth rotator commands to account for magnetic declination.  Default is 0.0.  Note: if you have a magnetic declination reading for your location, use the negative of that value for the offset.", default=0, required=False)
     argparser.add_argument('--rotorleftlimit', help="If needed, can provide a rotor 'left' limit in degrees. For instance if obstructions block rotation or view.  Default is no restriction.  Note: if either left/right limit is noted, both are required.", default=-1, required=False)
     argparser.add_argument('--rotorrightlimit', help="If needed, can provide a rotor 'right' limit in degrees. For instance if obstructions block rotation or view.  Default is no restriction. Note: if either left/right limit is noted, both are required.", default=-1, required=False)
     argparser.add_argument('--rotorelevationlimit', help="If needed, can provide a rotor 'elevation' limit in degrees. For instance if obstructions block rotation or view.  Default is 90 degrees (straight up).", default=-1, required=False)
@@ -170,6 +171,8 @@ if __name__ == '__main__':
         
         exit(0)
         
+    azoffset = float(args.azoffset)
+    
     # Check we have the parameters we need:
     if len(args.body) == 0:
         print("ERROR: Body is required.")
@@ -353,14 +356,20 @@ if __name__ == '__main__':
                 # check our limits if we have any
                 executeMove = True
                 
+                trueAz = azimuth + azoffset
+                if trueAz > 360.0:
+                    trueAz = trueAz - 360.0
+                elif trueAz < 0.0:
+                    trueAz = trueAz + 360.0
+                
                 if usingRotorLimits:
                     if rotorLimitsReversed:
                         # if we're less than the left limit but not within the right limit, don't move
-                        if azimuth < float(args.rotorleftlimit) and azimuth > float(args.rotorrightlimit):
+                        if trueAz < float(args.rotorleftlimit) and trueAz > float(args.rotorrightlimit):
                             executeMove = False
                     else:
                         # if we're not between our set limits, don't move
-                        if azimuth < float(args.rotorleftlimit) or azimuth > float(args.rotorrightlimit):
+                        if trueAz < float(args.rotorleftlimit) or trueAz > float(args.rotorrightlimit):
                             executeMove = False
                         
                     if args.rotorelevationlimit != -1:
@@ -368,7 +377,7 @@ if __name__ == '__main__':
                             executeMove = False
                             
                     if executeMove:
-                        retVal = RCmoveToPosition(args.rotor, int(args.rotortype),  int(args.rotorbaud),  azimuth,  elevation)
+                        retVal = RCmoveToPosition(args.rotor, int(args.rotortype),  int(args.rotorbaud),  trueAz,  elevation)
                     else:
                         print('[Info] Rotor would violate user-configured limits.  No move sent.')
                 else:
@@ -377,11 +386,14 @@ if __name__ == '__main__':
                             executeMove = False
                             
                     if executeMove:
-                        retVal = RCmoveToPosition(args.rotor, int(args.rotortype),  int(args.rotorbaud),  azimuth,  elevation)
+                        retVal = RCmoveToPosition(args.rotor, int(args.rotortype),  int(args.rotorbaud),  trueAz,  elevation)
                     else:
                         print('[Info] Rotor would violate user-configured limits.  No move sent.')
                 
-            print("\nAziumuth:\t%.2f degrees" % azimuth)
+            print("\nGeo Aziumuth:\t%.2f degrees" % azimuth)
+            if azoffset != 0.0:
+                print("Mag Aziumuth:\t%.2f degrees" % trueAz)
+                
             print("Elevation:\t%.2f degrees" % elevation)
             print("Distance:\t%.2f miles  / %.2f km" % (distance, (distance_meters/1000.0)))
             print("Percent illumination:\t%.2f%%" % (almanac.fraction_illuminated(planets,planetaryBody,t)*100.0))
