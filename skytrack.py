@@ -259,11 +259,11 @@ if __name__ == '__main__':
         print("ERROR: if one limit is provided, both left/right must be set.")
         exit(2)
         
-    if args.rotorleftlimit > 360.0 or (args.rotorleftlimit < 0.0 and args.rotorleftlimit != -1):
+    if float(args.rotorleftlimit) > 360.0 or (float(args.rotorleftlimit) < 0.0 and args.rotorleftlimit != -1):
         print("ERROR: bad limit value.")
         exit(2)
         
-    if args.rotorrightlimit > 360.0 or (args.rotorrightlimit < 0.0 and args.rotorrightlimit != -1):
+    if float(args.rotorrightlimit) > 360.0 or (float(args.rotorrightlimit) < 0.0 and args.rotorrightlimit != -1):
         print("ERROR: bad limit value.")
         exit(2)
         
@@ -272,7 +272,7 @@ if __name__ == '__main__':
         
         # Depending on where your target is, left/right could span 0 degrees.  In that scenario,
         # the left limit will be greater than the right limit (e.g. 330 degrees left, 30 degrees right)
-        if args.rotorleftlimit <= args.rotorRightLimit:
+        if args.rotorleftlimit <= args.rotorrightlimit:
             rotorLimitsReversed = False
         else:
             rotorLimitsReversed = True
